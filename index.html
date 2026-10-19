@@ -47,7 +47,7 @@
 <div class="bottom"><section class="panel"><h2>▤ &nbsp;Banco de questões</h2><div class="tiles"><div class="tile"><small class="sub">Banco herdado</small><b>3.500</b></div><div class="tile"><small class="sub">Questões autorais</small><b>52</b></div><div class="tile"><small class="sub">Simulados</small><b>20/35/70</b></div><div class="tile"><small class="sub">Treino misto</small><b>Ativo</b></div></div></section>
 <section class="panel"><h2>▣ &nbsp;Planejamento da semana</h2><div id="days" class="days"></div><div id="weekInfo" class="notice"></div></section></div><div class="notice">Os indicadores mostram seu progresso real. O banco herdado ainda requer conferência individual de origem e gabaritos.</div>
 </section>
-<section class="work" id="work"><div class="workspaceTop"><h1 id="workTitle">Estudos</h1><button class="back" data-view="home">← Dashboard</button></div><div class="workspace"><iframe title="Aplicativo de estudos completo" id="appframe" src="./app-original.html?v=20261019" loading="eager"></iframe></div><div class="loading" id="frameStatus">Carregando recursos de estudo…</div></section>
+<section class="work" id="work"><div class="workspaceTop"><h1 id="workTitle">Estudos</h1><button class="back" id="screenBack">← Voltar</button></div><div class="workspace"><iframe title="Aplicativo de estudos completo" id="appframe" src="./app-original.html?v=20261019" loading="eager"></iframe></div><div class="loading" id="frameStatus">Carregando recursos de estudo…</div></section>
 </div></div></div>
 <script>
 const $=id=>document.getElementById(id);const frame=$('appframe');let loaded=false;const refs={exam:['Meus Simulados','examSetup'],bank:['Banco de Questões','bankMixCard'],schedule:['Cronograma','calendar'],reinforce:['Reforço Inteligente','reinforcementCard'],notes:['Notas de estudo','qualifiedCard'],backup:['Backup e Restauração','exportBtn']};
@@ -63,8 +63,66 @@ const d=new Date();let vals=[];for(let k=6;k>=0;k--){const dt=new Date(d);dt.set
 const top=Math.max(1,...vals),points=vals.map((v,i)=>(20+i*63)+','+(150-v/top*110)).join(' ');$('trend').innerHTML='<path d="M20 150 H398 M20 95 H398 M20 40 H398" stroke="#294462" fill="none"/><polyline points="'+points+'" stroke="#ffc13c" stroke-width="3" fill="none"/>'+vals.map((v,i)=>'<circle cx="'+(20+i*63)+'" cy="'+(150-v/top*110)+'" r="4" fill="#ffc13c"/>').join('')+'<text x="20" y="175" fill="#8da9cc">7 dias atrás</text><text x="398" y="175" text-anchor="end" fill="#8da9cc">Hoje</text>';
 const upcoming=(s.days||[]).filter(x=>x.date>=new Date().toISOString().slice(0,10)).slice(0,7);$('days').innerHTML=upcoming.map(x=>'<div class="day"><b>'+new Date(x.date+'T12:00').toLocaleDateString('pt-BR',{weekday:'short'}).slice(0,3)+'</b>'+x.date.slice(8)+'/'+x.date.slice(5,7)+'<em>○</em></div>').join('');$('weekInfo').textContent=upcoming.length?'Próxima meta: '+upcoming[0].target+' exercícios · '+new Date(upcoming[0].date+'T12:00').toLocaleDateString('pt-BR'):'Calendário finalizado';
 }
-function navigate(view){document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('dashboard').style.display=view==='home'?'block':'none';$('work').classList.toggle('active',view!=='home');$('pageTitle').textContent=view==='home'?'Dashboard':refs[view]?.[0]||'Estudos';$('workTitle').textContent=refs[view]?.[0]||'Estudos';if(view!=='home'){setTimeout(()=>{try{const d=frame.contentDocument;const id=refs[view]?.[1];const target=d.getElementById(id);if(target)target.scrollIntoView({block:'start'});else if(view==='backup')d.getElementById('exportBtn')?.scrollIntoView();else if(view==='notes')d.querySelector('.notes')?.scrollIntoView()}catch(e){}},150)}else paint()}
-document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.view)));
-frame.addEventListener('load',()=>{paint();try{const doc=frame.contentDocument;if(!doc||doc.getElementById('brandThemeOverride'))return;const css=doc.createElement('style');css.id='brandThemeOverride';css.textContent=':root{--blue:#ffc13c;--blue2:#b88d38;--bg:#0c172a;--card:#14243b;--ink:#f5f7ff;--muted:#adc0db;--line:#294361;--light:#192c47}body{background:#0c172a!important;color:#f5f7ff!important}.card,.option,.kpi,.filterBox{background:#14243b!important;color:#f5f7ff!important;border-color:#2b4565!important}input,select{background:#10233b!important;color:#fff!important;border-color:#35506f!important}h1,h2,h3{color:#ffca56!important}.hero{background:linear-gradient(120deg,#102948,#09182f)!important}';doc.head.appendChild(css)}catch(e){}});
+
+let currentScreen='home',screenStack=[];
+function cardOf(id){const d=frame.contentDocument;return d.getElementById(id)?.closest('section.card')||null}
+function activateInnerScreen(view){
+ const d=frame.contentDocument;if(!d||!d.querySelector('.app'))return;
+ let options=[];
+ const add=(id)=>{const x=cardOf(id);if(x&&!options.includes(x))options.push(x)};
+ if(view==='schedule'){add('calendarTable');const det=cardOf('calendarTable')?.querySelector('details');if(det)det.open=true}
+ else if(view==='exam'){add('examSetup');add('examRunner');add('examResults')}
+ else if(view==='bank'){add('bankMixCard');add('qualifiedCard');add('bankQualityCard');add('dateFilter')}
+ else if(view==='reinforce'){add('reinforcementCard');add('insightsCard')}
+ else if(view==='notes'){add('insightsCard');add('todayCard')}
+ else if(view==='backup'){add('backupCard');add('exportBtn')}
+ else if(view==='day'){add('quizCard');add('summaryCard')}
+ const all=d.querySelectorAll('.app > section.card');
+ all.forEach(section=>section.classList.toggle('nav-screen-hide',!options.includes(section)));
+ d.querySelector('.quickNav')?.classList.add('nav-screen-hide');
+ d.querySelector('.hero')?.classList.add('nav-screen-hide');
+ d.documentElement.scrollTop=0;d.body.scrollTop=0;
+}
+function initInnerScreens(){
+ try{
+ const d=frame.contentDocument;if(!d||d.getElementById('screenNavigationStyles'))return;
+ const css=d.createElement('style');css.id='screenNavigationStyles';
+ css.textContent='.nav-screen-hide{display:none!important}.app{padding-top:10px!important}section.card{margin-bottom:12px!important}';
+ d.head.appendChild(css);
+ // A seção do dia passa para a tela exclusiva de questões. O histórico continua no app original.
+ d.addEventListener('click',ev=>{
+  const button=ev.target.closest('button');if(!button)return;
+  const isDay=button.textContent.trim()==='Abrir'&&button.closest('#calendarTable');
+  const isTraining=['startTodayBtn','startFilterBtn','startReinforceBtn','reinforceAutoBtn','reinforceErrorsBtn','qualifiedBtn','qualifiedWeakBtn','mixBankBtn','legacyBankBtn','authorBankBtn','startTodayBtn','missedBtn','reviewMarkedBtn','unansweredBtn','continueBtn','pendingBtn','uniqueTrainBtn'].includes(button.id);
+  if(isDay||isTraining)setTimeout(()=>{const quiz=d.getElementById('quizCard');if(quiz&&!quiz.classList.contains('hidden'))navigate('day',true)},35);
+  if(button.id==='examStart'||button.id==='examResume')setTimeout(()=>activateInnerScreen('exam'),35);
+  if(button.id==='homeBtn')setTimeout(()=>navigate('schedule'),35);
+ },true);
+ d.addEventListener('click',ev=>{
+  const el=ev.target.closest('a[href^="#"]');if(!el)return;
+  const id=el.getAttribute('href').slice(1);
+  const map={examSetup:'exam',reinforcementCard:'reinforce',bankMixCard:'bank',todayCard:'schedule',filtersCard:'bank',backupCard:'backup'};
+  if(map[id]){ev.preventDefault();navigate(map[id])}
+ },true);
+ activateInnerScreen(currentScreen);
+ }catch(e){}
+}
+function navigate(view,fromChild=false){
+ if(view!=='home'&&view!==currentScreen)screenStack.push(currentScreen);
+ currentScreen=view;
+ document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view||(view==='day'&&b.dataset.view==='schedule')));
+ $('dashboard').style.display=view==='home'?'block':'none';
+ $('work').classList.toggle('active',view!=='home');
+ const title=view==='home'?'Dashboard':view==='day'?'Estudo do dia':refs[view]?.[0]||'Estudos';
+ $('pageTitle').textContent=title;$('workTitle').textContent=title;
+ if(view==='day'){const q=frame.contentDocument?.getElementById('qmeta')?.textContent||'';$('workTitle').textContent='Estudo do dia'+(q?' — '+q.slice(0,55):'')}
+ if(view==='home')paint();
+ else{initInnerScreens();activateInnerScreen(view);}
+ window.scrollTo({top:0,behavior:'instant'});
+}
+function backScreen(){const prev=screenStack.pop()||'home';navigate(prev)}
+
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.view)));$('screenBack').addEventListener('click',backScreen);
+frame.addEventListener('load',()=>{paint();initInnerScreens();try{const doc=frame.contentDocument;if(!doc||doc.getElementById('brandThemeOverride'))return;const css=doc.createElement('style');css.id='brandThemeOverride';css.textContent=':root{--blue:#ffc13c;--blue2:#b88d38;--bg:#0c172a;--card:#14243b;--ink:#f5f7ff;--muted:#adc0db;--line:#294361;--light:#192c47}body{background:#0c172a!important;color:#f5f7ff!important}.card,.option,.kpi,.filterBox{background:#14243b!important;color:#f5f7ff!important;border-color:#2b4565!important}input,select{background:#10233b!important;color:#fff!important;border-color:#35506f!important}h1,h2,h3{color:#ffca56!important}.hero{background:linear-gradient(120deg,#102948,#09182f)!important}';doc.head.appendChild(css)}catch(e){}});
 setInterval(()=>{if(loaded)paint();else paint()},3000);
 </script></body></html>
