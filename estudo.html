@@ -20,6 +20,43 @@ function initialize(){
    d.head.appendChild(responsive);
    const resultsTheme=d.createElement('style');resultsTheme.id='studyResultsDarkTheme';resultsTheme.textContent="#summaryCard,#summaryCard.summary,.summary,.summaryGrid,.themeGrid{background:#14243b!important;color:#f4f7ff!important}#summaryCard{border:1px solid #355477!important;border-radius:15px!important;padding:18px!important}#summaryCard h2,#summaryCard .big,#summaryPct,#summaryAnswered,#summaryCorrect,#summaryWrong{color:#ffca52!important}#summaryCard .summaryGrid>div,#summaryCard .themeItem,#themeSummary>div{background:#1a304e!important;color:#f4f7ff!important;border:1px solid #355477!important;border-radius:12px!important;padding:13px!important}#summaryCard .summaryGrid span,#summaryCard .small,#summaryCard p,#themeSummary{color:#c4d4ec!important}#summaryCard button{color:#f5f7ff!important;background:#244364!important;border:1px solid #446083!important}#summaryCard button.primary{color:#122138!important;background:#ffc13c!important}#quizCard .feedback,#quizCard .fullLesson,#quizCard .simpleLesson,#quizCard .whyBox,#quizCard .alert{background:#192f49!important;color:#eef5ff!important;border-color:#395b79!important}#quizCard .feedback b,#quizCard .fullLesson b,#quizCard .simpleLesson b{color:#ffcb60!important}#quizCard .feedback.good{border-color:#3a9c76!important}#quizCard .feedback.bad{border-color:#d66a6b!important}#quizCard .option.correct{background:#133b32!important;color:#eafff4!important;border-color:#40ad80!important}#quizCard .option.wrong{background:#42252b!important;color:#fff0ef!important;border-color:#d77979!important}@media(max-width:768px){#summaryCard{margin:0!important;width:100%!important}#summaryCard .summaryGrid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}#summaryCard .summaryGrid>div{min-width:0!important;text-align:center!important;padding:9px 4px!important}#summaryCard .themeGrid{grid-template-columns:1fr!important}#summaryCard .themeItem{overflow-wrap:anywhere!important}}";d.head.appendChild(resultsTheme);
    w.openDate(date);
+
+   // Comentários de cada alternativa: renderizados diretamente na tela de estudo.
+   const feedback=d.getElementById('feedback');
+   const rationale={
+    A:'Representa a falácia do custo irrecuperável: persistir numa decisão por recursos já investidos.',
+    B:'Representa o efeito de enquadramento: a forma de apresentar opções influencia a escolha.',
+    C:'Representa satisficing (solução satisfatória), um resultado possível da racionalidade limitada, não sua definição geral.',
+    D:'É a definição de racionalidade limitada: decidir sob limites de informação, tempo e capacidade cognitiva.',
+    E:'Representa o viés de ancoragem: peso excessivo à informação inicial.'
+   };
+   function renderComments(){
+    if(!feedback||!feedback.textContent.trim())return;
+    let q;try{q=w.eval('session[idx]')}catch(e){return}
+    if(!q||!Array.isArray(q.options))return;
+    const key=q.id+'|'+q.answer;
+    const old=feedback.querySelector('[data-option-analysis]');
+    if(old&&old.dataset.key===key)return;
+    if(old)old.remove();
+    const wrap=d.createElement('section');wrap.dataset.optionAnalysis='true';wrap.dataset.key=key;
+    wrap.style.cssText='margin-top:15px;padding:13px;border-radius:12px;background:#12253b;color:#f5f8ff;border:1px solid #3b5678';
+    const heading=d.createElement('h3');heading.textContent='Por que cada alternativa está certa ou errada?';heading.style.cssText='color:#ffca52;margin:0 0 12px;font-size:17px';wrap.appendChild(heading);
+    q.options.forEach((option,i)=>{
+      const letter='ABCDE'[i],correct=letter===q.answer;
+      const item=d.createElement('div');item.style.cssText='padding:11px;margin:9px 0;border-radius:9px;background:'+(correct?'#133b33':'#182d49')+';border:1px solid '+(correct?'#3db281':'#3f5a7b');
+      const t=d.createElement('strong');t.style.color=correct?'#6aefad':'#ffcb64';t.textContent=letter+' — '+(correct?'Correta':'Incorreta');item.appendChild(t);
+      const statement=d.createElement('p');statement.textContent=option;statement.style.cssText='margin:6px 0;color:#fff';item.appendChild(statement);
+      const explanation=d.createElement('p');explanation.style.cssText='margin:6px 0 0;color:#cbdaf0;line-height:1.5';
+      const stored=q.optionExplanations||q.alternativeExplanations||{};
+      const known=Array.isArray(stored)?stored[i]:stored[letter];
+      const special=/Racionalidade limitada/i.test(q.question)&&q.options.some(x=>/restrições de informação, tempo e capacidade cognitiva/i.test(x));
+      explanation.textContent=known||(special?rationale[letter]:(correct?(q.explanation||q.fullExplanation||'Gabarito indicado no banco; análise específica pendente.'):'Justificativa individual ainda não validada. Confira a definição do conceito na explicação principal.'));
+      item.appendChild(explanation);wrap.appendChild(item);
+    });
+    feedback.appendChild(wrap);
+   }
+   if(feedback){new MutationObserver(()=>{if(!feedback.querySelector('[data-option-analysis]'))renderComments()}).observe(feedback,{childList:true});setTimeout(renderComments,50)}
+
    status.textContent='Bloco do dia carregado. Seu progresso continua salvo no aplicativo.';
    try{w.scrollTo(0,0)}catch(e){}
    return;
