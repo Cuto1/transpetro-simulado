@@ -123,29 +123,35 @@ function navigate(view,fromChild=false){
 function backScreen(){const prev=screenStack.pop()||'home';navigate(prev)}
 
 function openStudyDate(date){
- const w=frame.contentWindow;
- if(!w){alert('O banco de questões ainda está carregando.');return}
- let opened=false;
- try{
-   const fn=w.openDate;
-   if(typeof fn==='function'){fn(date);opened=true}
-   else {
-     const d=frame.contentDocument;
-     const input=d&&d.getElementById('dateFilter');
-     if(input)input.value=date;
-     if(typeof w.qForDate==='function'&&typeof w.startSession==='function'){
-       const list=w.qForDate(date);
-       w.startSession(list.map(q=>q.id),'Treino '+date);
-       opened=true;
-     }
+ if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))return;
+ // Abre a tela imediatamente, sem depender da rolagem do aplicativo antigo.
+ navigate('day',true);
+ $('workTitle').textContent='Estudo do dia — '+date.split('-').reverse().join('/');
+ $('frameStatus').textContent='Preparando as questões de '+date.split('-').reverse().join('/')+'...';
+ let attempts=0;
+ function launch(){
+  attempts++;
+  try{
+   const w=frame.contentWindow,doc=frame.contentDocument;
+   if(!doc||!doc.getElementById('quizCard')||!w||typeof w.openDate!=='function'){
+    if(attempts<35){setTimeout(launch,250);return}
+    $('frameStatus').textContent='O banco ainda não carregou. Volte ao Dashboard e tente novamente.';return;
    }
- }catch(e){console.error(e)}
- if(opened){navigate('day',true);setTimeout(()=>{try{frame.contentWindow.scrollTo(0,0)}catch(e){}},60)}
- else alert('Não foi possível abrir o treino. Aguarde o carregamento e tente novamente.');
+   w.openDate(date);
+   activateInnerScreen('day');
+   const quiz=doc.getElementById('quizCard');
+   if(quiz&&!quiz.classList.contains('hidden')){
+     $('frameStatus').textContent='Questões do dia carregadas.';
+     doc.documentElement.scrollTop=0;doc.body.scrollTop=0;
+     frame.contentWindow.scrollTo(0,0);
+   }else $('frameStatus').textContent='Nenhuma questão disponível nesta data.';
+  }catch(error){console.error(error);$('frameStatus').textContent='Não foi possível carregar as questões.'}
+ }
+ launch();
 }
-$('days').addEventListener('click',event=>{
- const button=event.target.closest('[data-study-date]');
- if(button)openStudyDate(button.dataset.studyDate);
+document.addEventListener('click',event=>{
+ const button=event.target.closest('#days [data-study-date]');
+ if(button){event.preventDefault();openStudyDate(button.dataset.studyDate)}
 });
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.view)));$('screenBack').addEventListener('click',backScreen);
 frame.addEventListener('load',()=>{paint();initInnerScreens();try{const doc=frame.contentDocument;if(!doc||doc.getElementById('brandThemeOverride'))return;const css=doc.createElement('style');css.id='brandThemeOverride';css.textContent=':root{--blue:#ffc13c;--blue2:#b88d38;--bg:#0c172a;--card:#14243b;--ink:#f5f7ff;--muted:#adc0db;--line:#294361;--light:#192c47}body{background:#0c172a!important;color:#f5f7ff!important}.card,.option,.kpi,.filterBox{background:#14243b!important;color:#f5f7ff!important;border-color:#2b4565!important}input,select{background:#10233b!important;color:#fff!important;border-color:#35506f!important}h1,h2,h3{color:#ffca56!important}.hero{background:linear-gradient(120deg,#102948,#09182f)!important}';doc.head.appendChild(css)}catch(e){}});
