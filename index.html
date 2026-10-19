@@ -13,14 +13,14 @@ body{margin:0;background:#f2f6f8;color:#163f5c;font-family:system-ui,-apple-syst
 @keyframes s{to{transform:rotate(360deg)}}small{color:#667784}
 </style>
 </head>
-<body><div class="box"><div class="spin"></div><b>Carregando Simulado Transpetro…</b><br><small>Preparando suas 2.550 questões</small></div>
+<body><div class="box"><div class="spin"></div><b>Carregando Simulado Transpetro…</b><br><small>Preparando suas 3.500 questões</small></div>
 <script>
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
 (async()=>{
  try{
    let h="";
-   for(let i=0;i<16;i++){
-     const r=await fetch("./data/p"+String(i).padStart(2,"0")+".txt",{cache:"no-cache"});
+   for(let i=0;i<24;i++){
+     const r=await fetch("./data3500/p"+String(i).padStart(2,"0")+".txt",{cache:"no-cache"});
      if(!r.ok) throw new Error("parte "+i);
      h+=await r.text();
    }
