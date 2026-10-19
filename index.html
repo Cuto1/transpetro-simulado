@@ -124,30 +124,7 @@ function backScreen(){const prev=screenStack.pop()||'home';navigate(prev)}
 
 function openStudyDate(date){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return;
- // Abre a tela imediatamente, sem depender da rolagem do aplicativo antigo.
- navigate('day',true);
- $('workTitle').textContent='Estudo do dia — '+date.split('-').reverse().join('/');
- $('frameStatus').textContent='Preparando as questões de '+date.split('-').reverse().join('/')+'...';
- let attempts=0;
- function launch(){
-  attempts++;
-  try{
-   const w=frame.contentWindow,doc=frame.contentDocument;
-   if(!doc||!doc.getElementById('quizCard')||!w||typeof w.openDate!=='function'){
-    if(attempts<35){setTimeout(launch,250);return}
-    $('frameStatus').textContent='O banco ainda não carregou. Volte ao Dashboard e tente novamente.';return;
-   }
-   w.openDate(date);
-   activateInnerScreen('day');
-   const quiz=doc.getElementById('quizCard');
-   if(quiz&&!quiz.classList.contains('hidden')){
-     $('frameStatus').textContent='Questões do dia carregadas.';
-     doc.documentElement.scrollTop=0;doc.body.scrollTop=0;
-     frame.contentWindow.scrollTo(0,0);
-   }else $('frameStatus').textContent='Nenhuma questão disponível nesta data.';
-  }catch(error){console.error(error);$('frameStatus').textContent='Não foi possível carregar as questões.'}
- }
- launch();
+ window.location.assign('./estudo.html?data='+encodeURIComponent(date));
 }
 document.addEventListener('click',event=>{
  const button=event.target.closest('#days [data-study-date]');
