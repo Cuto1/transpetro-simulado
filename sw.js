@@ -1,5 +1,5 @@
-const CACHE="transpetro-reta-final-v3-cloud";
-const ASSETS=["./","./index.html","./manifest.webmanifest","./icon.svg","./data/p00.txt","./data/p01.txt","./data/p02.txt","./data/p03.txt","./data/p04.txt","./data/p05.txt","./data/p06.txt","./data/p07.txt","./data/p08.txt","./data/p09.txt","./data/p10.txt","./data/p11.txt","./data/p12.txt","./data/p13.txt","./data/p14.txt","./data/p15.txt"];
+const CACHE="transpetro-reta-final-v4-3500";
+const ASSETS=["./","./index.html","./manifest.webmanifest","./icon.svg","./expansion-3500.js","./data/p00.txt","./data/p01.txt","./data/p02.txt","./data/p03.txt","./data/p04.txt","./data/p05.txt","./data/p06.txt","./data/p07.txt","./data/p08.txt","./data/p09.txt","./data/p10.txt","./data/p11.txt","./data/p12.txt","./data/p13.txt","./data/p14.txt","./data/p15.txt"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));self.skipWaiting();});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim();});
 self.addEventListener("fetch",e=>{if(e.request.method!=="GET")return;e.respondWith(caches.match(e.request).then(cached=>cached||fetch(e.request).then(r=>{const cp=r.clone();caches.open(CACHE).then(c=>c.put(e.request,cp)).catch(()=>{});return r;})));});
