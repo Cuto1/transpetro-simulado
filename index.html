@@ -15,7 +15,7 @@
 @media(max-width:1250px){.graphs{grid-template-columns:1fr 1fr}.graphs .graph:last-child{grid-column:span 2}.metrics{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:850px){.shell{grid-template-columns:70px minmax(0,1fr)}.brand{justify-content:center}.brandText,.nav .txt,.sidefoot{display:none}.nav{padding:10px 4px}.nav button{justify-content:center;padding:13px}.nav button span{width:auto}.content{padding:15px}.row,.bottom,.graphs{grid-template-columns:1fr}.graphs .graph:last-child{grid-column:auto}.tiles{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:550px){.metrics,.actions{grid-template-columns:1fr}.welcome .datebox{display:none}.top{padding:13px}.profile .who{display:none}.days{gap:2px}.day{font-size:9px}.workspace{height:calc(100vh - 170px)}}
-</style></head><body>
+@media(max-width:850px){body.study-active .shell{display:block!important}body.study-active .sidebar{display:none!important}body.study-active .main{width:100%!important}body.study-active .content{padding:0!important}body.study-active .workspace{height:calc(100dvh - 115px)!important;border:0!important;border-radius:0!important}body.study-active .workspace iframe{width:100%!important}body.study-active .top{padding:10px 12px!important}.work.active{width:100%}} </style></head><body>
 <div class="shell"><aside class="sidebar"><div class="brand"><div class="brandIcon">⚓</div><div class="brandText"><strong>Transpetro 2026</strong><small>Central de Estudos</small></div></div>
 <nav class="nav" id="nav">
 <button class="active" data-view="home"><span>▦</span><label class="txt">Dashboard</label></button>
@@ -94,7 +94,8 @@ function initInnerScreens(){
   const button=ev.target.closest('button');if(!button)return;
   const isDay=button.textContent.trim()==='Abrir'&&button.closest('#calendarTable');
   const isTraining=['startTodayBtn','startFilterBtn','startReinforceBtn','reinforceAutoBtn','reinforceErrorsBtn','qualifiedBtn','qualifiedWeakBtn','mixBankBtn','legacyBankBtn','authorBankBtn','startTodayBtn','missedBtn','reviewMarkedBtn','unansweredBtn','continueBtn','pendingBtn','uniqueTrainBtn'].includes(button.id);
-  if(isDay||isTraining){setTimeout(()=>{navigate('day',true);const quiz=d.getElementById('quizCard');if(quiz&&!quiz.classList.contains('hidden'))quiz.scrollIntoView({block:'start',behavior:'instant'});},0);}
+  if(isDay){const d=button.closest('#calendarTable')?.querySelector('tr')?.querySelector('td b')?.textContent; const date=(button.getAttribute('onclick')||'').match(/\d{4}-\d{2}-\d{2}/)?.[0];if(date){window.location.assign('./estudo.html?data='+date);return}}
+  if(isTraining){setTimeout(()=>{navigate('day',true);const quiz=d.getElementById('quizCard');if(quiz&&!quiz.classList.contains('hidden'))quiz.scrollIntoView({block:'start',behavior:'instant'});},0);}
   if(button.id==='examStart'||button.id==='examResume')setTimeout(()=>activateInnerScreen('exam'),35);
   if(button.id==='homeBtn')setTimeout(()=>navigate('schedule'),35);
  },true);
@@ -110,6 +111,7 @@ function initInnerScreens(){
 function navigate(view,fromChild=false){
  if(view!=='home'&&view!==currentScreen)screenStack.push(currentScreen);
  currentScreen=view;
+ document.body.classList.toggle('study-active',view==='day');
  document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view||(view==='day'&&b.dataset.view==='schedule')));
  $('dashboard').style.display=view==='home'?'block':'none';
  $('work').classList.toggle('active',view!=='home');
