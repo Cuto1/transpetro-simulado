@@ -1,7 +1,7 @@
 {
   "name":"Transpetro — Reta Final",
   "short_name":"Transpetro",
-  "description":"Simulado de estudo por questões para a prova da Transpetro.",
+  "description":"Simulado Transpetro com 3.500 questões mapeadas pelo edital.",
   "start_url":"./",
   "scope":"./",
   "display":"standalone",
