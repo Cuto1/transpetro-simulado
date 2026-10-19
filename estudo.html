@@ -57,6 +57,39 @@ function initialize(){
    }
    if(feedback){new MutationObserver(()=>{if(!feedback.querySelector('[data-option-analysis]'))renderComments()}).observe(feedback,{childList:true});setTimeout(renderComments,50)}
 
+
+   // Reconstroi a apresentação dos dados reais do resumo, sem modificar respostas.
+   const summary=d.getElementById('summaryCard');
+   function refreshSummary(){
+     if(!summary||summary.classList.contains('hidden'))return;
+     summary.style.setProperty('background','#14243b','important');
+     summary.style.setProperty('color','#f4f7ff','important');
+     for(const id of ['summaryAnswered','summaryCorrect','summaryWrong','summaryPct']){
+       const el=d.getElementById(id);if(el){el.style.setProperty('color','#ffcb52','important');el.style.setProperty('visibility','visible','important');el.style.setProperty('opacity','1','important');}
+     }
+     const grid=summary.querySelector('.summaryGrid');
+     if(grid)for(const cell of grid.children){
+       cell.style.setProperty('background','#1b3451','important');
+       cell.style.setProperty('color','#f4f7ff','important');
+       cell.style.setProperty('border','1px solid #3b5b7c','important');
+       for(const el of cell.querySelectorAll('*')){el.style.setProperty('color',el.tagName==='B'?'#ffcb52':'#ecf4ff','important');el.style.setProperty('visibility','visible','important');}
+     }
+     const themes=d.getElementById('themeSummary');
+     if(themes)for(const cell of themes.children){
+       cell.style.setProperty('background','#1b3451','important');
+       cell.style.setProperty('color','#f4f7ff','important');
+       cell.style.setProperty('border','1px solid #3b5b7c','important');
+       for(const el of cell.querySelectorAll('*'))el.style.setProperty('color','#f4f7ff','important');
+     }
+     if(!summary.querySelector('#studySummaryLabels')){
+       const heading=d.createElement('div');heading.id='studySummaryLabels';
+       heading.textContent='Resultado do bloco: respostas, acertos, erros e aproveitamento por matéria.';
+       heading.style.cssText='color:#c9d9ef;margin:12px 0;font-size:13px';
+       (grid||summary).before(heading);
+     }
+   }
+   if(summary){new MutationObserver(refreshSummary).observe(summary,{attributes:true,attributeFilter:['class']});setTimeout(refreshSummary,300);}
+
    status.textContent='Bloco do dia carregado. Seu progresso continua salvo no aplicativo.';
    try{w.scrollTo(0,0)}catch(e){}
    return;
