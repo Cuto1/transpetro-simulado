@@ -1,5 +1,8 @@
-const CACHE="transpetro-reta-final-v5-3500";
-const ASSETS=["./manifest.webmanifest","./icon.svg","./data3500/p00.txt","./data3500/p01.txt","./data3500/p02.txt","./data3500/p03.txt","./data3500/p04.txt","./data3500/p05.txt","./data3500/p06.txt","./data3500/p07.txt","./data3500/p08.txt","./data3500/p09.txt","./data3500/p10.txt","./data3500/p11.txt","./data3500/p12.txt","./data3500/p13.txt","./data3500/p14.txt","./data3500/p15.txt","./data3500/p16.txt","./data3500/p17.txt","./data3500/p18.txt","./data3500/p19.txt","./data3500/p20.txt","./data3500/p21.txt","./data3500/p22.txt","./data3500/p23.txt"];
-self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));self.skipWaiting();});
-self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim();});
-self.addEventListener("fetch",e=>{if(e.request.method!=="GET")return;e.respondWith(caches.match(e.request).then(cached=>cached||fetch(e.request).then(r=>{const cp=r.clone();caches.open(CACHE).then(c=>c.put(e.request,cp)).catch(()=>{});return r;})));});
+const CACHE="transpetro-reta-final-v6-2026";
+self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(["./manifest.webmanifest","./icon.svg"])));self.skipWaiting()});
+self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});
+self.addEventListener("fetch",e=>{if(e.request.method!=="GET")return;
+const url=new URL(e.request.url);if(url.origin!==self.location.origin)return;
+if(e.request.mode==="navigate"){e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));return;}
+e.respondWith(fetch(e.request).then(r=>{if(r.ok){const cp=r.clone();caches.open(CACHE).then(c=>c.put(e.request,cp)).catch(()=>{});}return r;}).catch(()=>caches.match(e.request)));
+});
