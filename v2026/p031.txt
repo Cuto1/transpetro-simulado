@@ -245,7 +245,16 @@ function normalizeTxt(s){
   return String(s||"").toLowerCase().trim();
 }
 function explainAlternatives(q){
- const details=q.optionExplanations||q.alternativeExplanations||{};
+ const details={...(q.optionExplanations||q.alternativeExplanations||{})};
+ if(/Racionalidade limitada/i.test(q.question)&&q.options.some(x=>/restrições de informação, tempo e capacidade cognitiva/i.test(x))){
+  Object.assign(details,{
+   A:"Descreve a falácia do custo irrecuperável (sunk cost): insistir em uma decisão devido ao investimento já realizado, e não racionalidade limitada.",
+   B:"Descreve o efeito de enquadramento (framing): a apresentação das alternativas influencia a escolha, ainda que os fatos sejam equivalentes.",
+   C:"Descreve a busca de uma solução satisfatória (satisficing), frequentemente decorrente da racionalidade limitada. É um comportamento relacionado, mas não a definição mais abrangente do conceito.",
+   D:"Define racionalidade limitada: as pessoas decidem sob restrições de tempo, informação e capacidade cognitiva, sem avaliar perfeitamente todas as alternativas.",
+   E:"Descreve o viés de ancoragem: atribuir peso excessivo à primeira informação ou referência disponível."
+  });
+ }
  const html=q.options.map((option,i)=>{
    const letter=LETTERS[i],correct=letter===q.answer;
    let justification=Array.isArray(details)?details[i]:details[letter]||details[letter.toLowerCase()];
