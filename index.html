@@ -20,12 +20,12 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.se
  try{
    let h="";
    for(let i=0;i<24;i++){
-     const r=await fetch("./data3500/p"+String(i).padStart(2,"0")+".txt",{cache:"no-cache"});
+     const r=await fetch("./data3500/p"+String(i).padStart(2,"0")+".txt?v=3500-2",{cache:"no-store"});
      if(!r.ok) throw new Error("parte "+i);
      h+=await r.text();
    }
-   h=h.replace("const QUESTIONS=PLAN.questions;","const QUESTIONS=PLAN.questions;</"+"script><script src='./expansion-3500.js'></"+"script><script>");
-   h=h.replaceAll("2.550 questões","3.500 questões");
+      h=h.replaceAll("2.550 questões","3.500 questões");
+   h=h.replace('id="remainKpi">2.550','id="remainKpi">3.500');
    h=h.replace("(2550-done)","(PLAN.totalQuestions-done)");
    h=h.replace("done/2550*100","done/PLAN.totalQuestions*100");
    h=h.replace("Transpetro Reta Final 2550","Transpetro Reta Final 3500");
