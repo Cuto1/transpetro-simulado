@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#163f5c"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg">
+<title>Transpetro 2026 — Central de Estudos</title>
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f2f6f8;color:#163f5c;font:16px system-ui,sans-serif}.box{max-width:420px;text-align:center;padding:25px}.bar{height:10px;border-radius:10px;background:#d8e5ec;overflow:hidden}.bar>div{height:100%;width:0;background:#24759a;transition:width .15s}a{color:#11628f}</style></head>
+<body><div class="box"><h2>Transpetro 2026 — Central de Estudos</h2><p id="status">Carregando banco de questões e simulados…</p><div class="bar"><div id="progress"></div></div><p><small>Se tiver respostas salvas, preserve um backup.</small></p><a href="./legado.html">Abrir versão anterior</a></div>
+<script>
+(async()=>{try{
+let h="";for(let i=0;i<33;i++){const p="v2026/p"+String(i).padStart(3,"0")+".txt";const r=await fetch(p,{cache:"no-store"});if(!r.ok)throw Error("Falha ao carregar "+p);h+=await r.text();document.getElementById("progress").style.width=((i+1)/33*100).toFixed(1)+"%";}
+if(!h.trimStart().startsWith("<!doctype html")||!h.includes("</html>"))throw Error("Conteúdo incompleto");
+document.open();document.write(h);document.close();
+if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js").catch(()=>{});}
+}catch(e){document.getElementById("status").textContent="Falha ao carregar: "+e.message+". Tente atualizar a página.";}})();
+</script></body></html>
