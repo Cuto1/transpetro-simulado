@@ -63,6 +63,7 @@ button,select,input{font:inherit}
 .summary{text-align:center}.summary .big{font-size:46px;font-weight:950;color:var(--blue)}
 .summaryGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.summaryGrid div{background:#f3f7f9;border-radius:12px;padding:12px}
 .themeGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}.themeItem{background:#f6f9fb;border:1px solid var(--line);border-radius:11px;padding:9px;font-size:12px}
+#summaryCard{background:#14243b!important;color:#f4f7ff!important;border-color:#365575!important}#summaryCard h2,#summaryCard .big,#summaryPct{color:#ffca52!important}#summaryCard .summaryGrid div,#summaryCard .summaryGrid>div{background:#1b3451!important;color:#f4f7ff!important;border:1px solid #3b5b7c!important}#summaryCard .summaryGrid b,#summaryCard .themeItem b{color:#ffca52!important}#summaryCard .summaryGrid span,#summaryCard .small{color:#c8d9ee!important}#summaryCard .themeItem,#summaryCard .themeGrid .themeItem{background:#1b3451!important;color:#f4f7ff!important;border-color:#3b5b7c!important}#summaryCard .themeGrid{background:transparent!important}#summaryCard .btn.secondary{background:#244365!important;color:#fff!important}#summaryCard .btn.primary{background:#ffc13c!important;color:#17263e!important}
 .hidden{display:none!important}
 details summary{cursor:pointer;font-weight:900;color:var(--blue)}
 .alert{background:var(--warnbg);color:var(--warn);padding:10px 12px;border-radius:10px;font-size:12px;margin-top:10px}
