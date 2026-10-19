@@ -24,7 +24,13 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.se
      if(!r.ok) throw new Error("parte "+i);
      h+=await r.text();
    }
-   h=h.replace('</body>','<script src="https://koracudeysqpanhjgmfm.supabase.co/functions/v1/transpetro-cloud-client"></'+'script></body>'); document.open(); document.write(h); document.close();
+   h=h.replace("const QUESTIONS=PLAN.questions;","const QUESTIONS=PLAN.questions;</"+"script><script src='./expansion-3500.js'></"+"script><script>");
+   h=h.replaceAll("2.550 questões","3.500 questões");
+   h=h.replace("(2550-done)","(PLAN.totalQuestions-done)");
+   h=h.replace("done/2550*100","done/PLAN.totalQuestions*100");
+   h=h.replace("Transpetro Reta Final 2550","Transpetro Reta Final 3500");
+   h=h.replace('</body>','<script src="https://koracudeysqpanhjgmfm.supabase.co/functions/v1/transpetro-cloud-client"></'+'script></body>');
+   document.open(); document.write(h); document.close();
  }catch(e){
    document.body.innerHTML='<div class="box"><b>Não foi possível carregar o simulador.</b><br><small>Atualize a página em alguns segundos.</small></div>';
  }
