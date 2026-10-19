@@ -1,0 +1,30 @@
+themes,automatic:auto};state.simulations.unshift(result);state.activeSimulation=null;clearInterval(examTicker);examTicker=null;scheduleSave();renderExamResult(result);renderExamHistory();
+}
+function renderExamResult(result){$('examRunner').classList.add('hidden');$('examResults').classList.remove('hidden');const total=result.ids.length,correct=result.correct;
+ const vals=[['Acertos',`${correct}/${total}`],['Aproveitamento',`${Math.round(correct/total*100)}%`],['Em branco',total-result.answered],['Duração',`${Math.round((result.finished-result.started)/60000)} min`]];
+ $('examResultStats').innerHTML=vals.map(([a,b])=>`<div class="insight"><b>${b}</b><span>${a}</span></div>`).join('');
+ $('examResultThemes').innerHTML=Object.entries(result.themes).sort((a,b)=>a[1].correct/a[1].total-b[1].correct/b[1].total).map(([name,x])=>`<div class="themeItem"><b>${esc(name)}</b><br>${x.correct}/${x.total} · ${Math.round(x.correct/x.total*100)}%</div>`).join('');
+ $('examCorrections').classList.add('hidden');$('examCorrections').innerHTML=result.ids.map((id,i)=>{const q=QUESTION_BY_ID.get(id);if(!q)return '';const chosen=result.answers[id];return `<details style="border-bottom:1px solid #ddd;padding:9px"><summary>${i+1}. ${esc(q.planTheme)} — ${chosen===q.answer?'✅ Acerto':'❌ Erro'} ${chosen?'':'(em branco)'}</summary><p>${esc(q.question)}</p><p>Sua resposta: <b>${chosen||'Em branco'}</b> · Gabarito: <b>${esc(q.answer)}</b></p><p>${esc(q.fullExplanation||q.explanation||'Sem explicação validada disponível.')}</p></details>`}).join('');
+ $('examReviewWrong').onclick=()=>{const ids=result.ids.filter(id=>result.answers[id]!==QUESTION_BY_ID.get(id)?.answer);if(!ids.length){alert('Nenhum erro neste simulado.');return}startReinforcement(ids,'Reforço dos erros do simulado');$('examResults').classList.add('hidden')};
+ $('examResults').scrollIntoView({block:'start',behavior:'smooth'});
+}
+function renderExamHistory(){
+ const a=state.activeSimulation;$('examResume').disabled=!a;
+ const list=state.simulations||[],last=list[0];
+ $('examHistory').textContent=a?`Simulado em andamento: ${Object.keys(a.answers).length}/${a.ids.length} respondidas.`:last?`Último simulado: ${new Date(last.finished).toLocaleDateString('pt-BR')} · ${last.correct}/${last.ids.length} acertos (${Math.round(last.correct/last.ids.length*100)}%).`:'Nenhum simulado realizado ainda.';
+ const el=$('examHistoryList');el.innerHTML='';
+ list.slice(0,8).forEach((r,i)=>{const b=document.createElement('button');b.className='historyChip';b.innerHTML=`<b>${esc(new Date(r.finished).toLocaleDateString('pt-BR'))} · ${r.correct}/${r.ids.length}</b>${Math.round(r.correct/r.ids.length*100)}% de acertos · revisar`;
+ b.onclick=()=>{renderExamResult(r)};el.appendChild(b)});
+}
+$('examStart').onclick=startExam;$('examResume').onclick=()=>{if(state.activeSimulation)renderExam()};$('examPrev').onclick=()=>{const a=state.activeSimulation;if(a&&a.idx>0){a.idx--;scheduleSave();renderExam()}};$('examNext').onclick=()=>{const a=state.activeSimulation;if(a&&a.idx<a.ids.length-1){a.idx++;scheduleSave();renderExam()}};$('examFinish').onclick=()=>finishExam(false);$('examNew').onclick=()=>{$('examResults').classList.add('hidden');$('examSetup').scrollIntoView({block:'start',behavior:'smooth'})};$('examToggleCorrections').onclick=()=>$('examCorrections').classList.toggle('hidden');
+
+$("qualifiedBtn").onclick=()=>startQualified(false);$("qualifiedWeakBtn").onclick=()=>startQualified(true);$("uniqueTrainBtn").onclick=uniqueTraining;$("qualityExportBtn").onclick=exportQualityCSV;$("reinforceAutoBtn").onclick=reinforcementAuto;$("reinforceErrorsBtn").onclick=reinforcementErrors;$("missedBtn").onclick=reviewWrong;$("reviewMarkedBtn").onclick=reviewMarked;$("unansweredBtn").onclick=getUnanswered;
+$("startFilterBtn").onclick=()=>{const a=filtered();startSession(a.map(q=>q.id),"Bloco filtrado")};$("continueBtn").onclick=continueLast;$("pendingBtn").onclick=pending;$("exportBtn").onclick=exportBackup;
+$("importInput").onchange=e=>{if(e.target.files[0])importBackup(e.target.files[0]);e.target.value=""};$("prevBtn").onclick=prev;$("nextBtn").onclick=next;$("retryBtn").onclick=retry;$("reviewBtn").onclick=toggleReview;$("redoWrongBtn").onclick=redoWrong;$("homeBtn").onclick=()=>{$("summaryCard").classList.add("hidden");window.scrollTo({top:0,behavior:"smooth"})};
+document.addEventListener("keydown",e=>{if($("quizCard").classList.contains("hidden"))return;if(["1","2","3","4","5"].includes(e.key)&&(practiceMode?!(state.reinforcement[session[idx].id]||[]).some(x=>x.sessionId===state.lastSession?.sessionId):!state.answers[session[idx].id]))answer(LETTERS[Number(e.key)-1]);if(e.key==="Enter")next()});
+window.addEventListener("beforeunload",()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}});
+
+(async function boot(){setupBankMix();initFilters();await initStorage();updateDashboard();renderToday();renderCalendar();renderReinforcement();renderBankQuality();renderQualified();renderExamHistory();if(state.activeSimulation)renderExam()})();
+</script>
+</body>
+</html>
