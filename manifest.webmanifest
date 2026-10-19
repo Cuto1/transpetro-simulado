@@ -1,0 +1,13 @@
+{
+  "name":"Transpetro — Reta Final",
+  "short_name":"Transpetro",
+  "description":"Simulado de estudo por questões para a prova da Transpetro.",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#f2f6f8",
+  "theme_color":"#163f5c",
+  "icons":[
+    {"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
