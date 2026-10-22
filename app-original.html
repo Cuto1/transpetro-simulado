@@ -6,7 +6,7 @@
 <body><div class="box"><h2>Transpetro 2026 — Central de Estudos</h2><p id="status">Carregando banco de questões e simulados…</p><div class="bar"><div id="progress"></div></div><p><small>Se tiver respostas salvas, preserve um backup.</small></p><a href="./legado.html">Abrir versão anterior</a></div>
 <script>
 (async()=>{try{
-let h="";for(let i=0;i<33;i++){const p="v2026/p"+String(i).padStart(3,"0")+".txt?rev=20261019-summaryfix5";const r=await fetch(p,{cache:"no-store"});if(!r.ok)throw Error("Falha ao carregar "+p);h+=await r.text();document.getElementById("progress").style.width=((i+1)/33*100).toFixed(1)+"%";}
+let h="";for(let i=0;i<33;i++){const p="v2026/p"+String(i).padStart(3,"0")+".txt?rev=20261022-conceitos";const r=await fetch(p,{cache:"no-store"});if(!r.ok)throw Error("Falha ao carregar "+p);h+=await r.text();document.getElementById("progress").style.width=((i+1)/33*100).toFixed(1)+"%";}
 if(!h.trimStart().startsWith("<!doctype html")||!h.includes("</html>"))throw Error("Conteúdo incompleto");
 document.open();document.write(h);document.close();
 if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js").catch(()=>{});}
