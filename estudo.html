@@ -50,7 +50,7 @@ function initialize(){
       const stored=q.optionExplanations||q.alternativeExplanations||{};
       const known=Array.isArray(stored)?stored[i]:stored[letter];
       const special=/Racionalidade limitada/i.test(q.question)&&q.options.some(x=>/restrições de informação, tempo e capacidade cognitiva/i.test(x));
-      explanation.textContent=known||(special?rationale[letter]:(correct?(q.explanation||q.fullExplanation||'Gabarito indicado no banco; análise específica pendente.'):'Justificativa individual ainda não validada. Confira a definição do conceito na explicação principal.'));
+      explanation.textContent=known||(special?rationale[letter]:(correct?(q.explanation||q.fullExplanation||'Gabarito indicado no banco; análise específica pendente.'):('Esta alternativa descreve '+(option.includes(' - ')?'“'+option.split(' - ')[0]+'”':'uma característica diferente')+', enquanto o conceito solicitado é '+((q.question.match(/conceito de ([^.?!]+)/i)||[])[1]||q.planTheme||'o apresentado no enunciado')+'. A opção correta apresenta: '+q.options['ABCDE'.indexOf(q.answer)]+'.')));
       item.appendChild(explanation);wrap.appendChild(item);
     });
     feedback.appendChild(wrap);
