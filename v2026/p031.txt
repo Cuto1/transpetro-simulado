@@ -255,12 +255,20 @@ function explainAlternatives(q){
    E:"Descreve o viés de ancoragem: atribuir peso excessivo à primeira informação ou referência disponível."
   });
  }
+ function conceptReason(option,correct){
+  const core=(q.question.match(/(?:conceito|definição|característica|significado) de\s+([^.?]+)/i)||[])[1]||q.content||q.planTheme||'o conceito solicitado';
+  const pieces=String(option).split(/\s+[-–—:]\s+/);
+  const term=pieces.length>1?pieces[0].trim():null;
+  if(correct)return 'Esta alternativa corresponde ao conceito solicitado. '+(q.fullExplanation||q.explanation||'');
+  if(term)return 'A alternativa associa o conceito “'+term+'” à descrição “'+pieces.slice(1).join(' — ')+'”. Essa associação não define '+core+'. Compare com o gabarito: '+q.options[LETTERS.indexOf(q.answer)]+'.';
+  return 'Esta descrição não corresponde à definição de '+core+'. A resposta adequada é: '+q.options[LETTERS.indexOf(q.answer)]+'. '+(q.explanation||'');
+ }
  const html=q.options.map((option,i)=>{
    const letter=LETTERS[i],correct=letter===q.answer;
    let justification=Array.isArray(details)?details[i]:details[letter]||details[letter.toLowerCase()];
    const rationale=justification?esc(justification):(correct?
      esc(q.fullExplanation||q.explanation||"Justificativa específica ainda não cadastrada."):
-     "A justificativa individual desta alternativa ainda não foi validada no banco. Compare-a com a definição apresentada na explicação principal.");
+     esc(conceptReason(option,false)));
    return '<div style="padding:11px 12px;margin-top:8px;border:1px solid '+(correct?'#399e73':'#3d536f')+';border-radius:10px;background:'+(correct?'#143a32':'#14253b')+';color:#eff5ff"><b style="color:'+(correct?'#62e6a1':'#ffcc66')+'">'+letter+' — '+(correct?'Correta':'Incorreta')+'</b><div style="margin-top:5px">'+esc(option)+'</div><div style="margin-top:7px;line-height:1.5">'+rationale+'</div></div>';
  }).join('');
  return '<div style="margin-top:14px"><strong style="color:#ffcc66">Análise das cinco alternativas</strong>'+html+'</div>';
